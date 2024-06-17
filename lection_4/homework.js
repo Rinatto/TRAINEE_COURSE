@@ -161,6 +161,7 @@ console.log("4");
 // в функциях foo, bar,baz запрещено что-либо менять
 // подсказка: нужны промисы =))
 
+// Исходные функции foo, bar и baz
 function foo(callback) {
     setTimeout(() => {
         callback('A');
@@ -179,39 +180,23 @@ function baz(callback) {
     }, Math.random() * 100);
 }
 
-function fooPromise() {
+function promisify(func) {
     return new Promise((resolve) => {
-        foo(resolve);
+        func(resolve);
     });
 }
 
-function barPromise() {
-    return new Promise((resolve) => {
-        bar(resolve);
-    });
+function fooBarBaz() {
+    Promise.all([
+        promisify(foo),
+        promisify(bar),
+        promisify(baz)
+    ])
+    .then(res => res.forEach(result => console.log(result)))
+    .catch(err => console.error(err));
 }
 
-function bazPromise() {
-    return new Promise((resolve) => {
-        baz(resolve);
-    });
-}
-
-fooPromise()
-    .then(result => {
-        console.log(result); 
-        return barPromise();
-    })
-    .then(result => {
-        console.log(result); 
-        return bazPromise();
-    })
-    .then(result => {
-        console.log(result); 
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
+fooBarBaz();
 
 ///////////////
 // todo Объяснить код, рассказать какие консоли и в какой последовательности будут, а затем переписать его на промисы
